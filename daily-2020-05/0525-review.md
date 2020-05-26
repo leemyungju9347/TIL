@@ -67,4 +67,4 @@
 - 학습 노트 본문 길이 유효성 검사
 
 
-출처 : [출처](https://github.com/joshua1988/vue-til/blob/10_api-modules/review.md)
+[출처](https://github.com/joshua1988/vue-til/blob/10_api-modules/review.md)
