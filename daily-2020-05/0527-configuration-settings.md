@@ -22,7 +22,7 @@
 2. .eslintrc.js rules에서 eslint규칙이나 prettier 규칙 추가 ( vue-til 파일 참고)
 3.  eslint 플러그인이 설치됐는지, 버전이 최신 버전인지 확인
 4. ctrl + , vscode 설정 화면 -> Eslint : validate -> settings.jscon에서 편집 으로 가기. validate에 속성 autofix : true
-5. prettier 플러그인 들어가서 setting아이콘 - 사용안함( 작업영역 )
+5. prettier 플러그인 들어가서 setting아이콘 -> 사용안함( 작업영역 )
 6. ctrl + , 설정 -> format on save -> 체크 해제되어 있어야 함
 7.여기까지 했지만 안될경우 package.json 에서 ESLint 버전을 ^5.16.0? 로 낮춰준뒤 npm i 을 하면 강의처럼 작동함
 
