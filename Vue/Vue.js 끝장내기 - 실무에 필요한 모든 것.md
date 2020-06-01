@@ -44,7 +44,7 @@
 	
 	- 특정 게시물을 조회 후에 수정할 수 있도록 Puts 메쏘드가 제공됨
   
-		<img src="../images/editPuts.PNG">
+		<img src="../img/editPuts.PNG">
     
 		- body 값은 수정된 title값과 contents값을 인자로 받도록 되어있다.
 	- title과 contents값은 input에 연결이 되어있기때문에 edit버튼을 누르고 나면 자연스럽게 submitForm에서 연결이 돼서 호출이 넘어간다.
@@ -233,7 +233,7 @@
 	- spec.js 는? 
 		- jest.config.js에서 testMatch로 test파일의 대상을 설정할 수 있었음
     
-		<img src="../images/testMatch.PNG">
+		<img src="../img/testMatch.PNG">
     
 		- 기본적으로 testMatch 라는 속성이 없으면 tests폴더 밑에  자바스크립트 데스트 파일을 작성해야함
 		- 그렇지만 테스트 파일은 테스트 폴더와 근접해 있는게 가장 좋기때문에 ```__test__```폴더를 생성해주거나 근접한 곳에 파일은 만드는게 좋다.
