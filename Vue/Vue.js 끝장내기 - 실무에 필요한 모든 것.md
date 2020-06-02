@@ -279,4 +279,170 @@
 			- 매번 값을 다르게 하는 것 보다  ```expect(result).not.toBe(15)``` not을 삽입해서 테스트 케이스가 잘 동작하는지를 점검할 수 있다.
       
 			  <img src="../img/notExpect.PNG">
+
+
+- 뷰 컴포넌트 테스트 방법
+	- 기본적으로 컴포넌트 파일을 하나 만들었을때  컴포넌트의 이름이 최소 단위
+	- 마운팅
+		<테스팅에서 마운팅>
+	```new Vue(LoginForm).$mount()```
+	<인스턴스에서 마운팅>
+		```
+		new Vue({
+			el:'#app',
+			render:h => h(App)
+		}).$mount
+		```
+		인스턴스가 생성될때 el 을 지정하는 것과 생성되고나서 인스턴스가 마운팅될 포인트를 잡아주는 것에 대한 차이
+		
+	- jest 같은 경우는 인스턴스를 콘솔로 찍었을때 인스턴스의 내용들을 확인할 수 있다.
+	- 컴포넌트 안에 username이 있는지 확인 (뷰컴포넌트를 들고와서 테스트할 수 있는지 점검)
+	```javascript
+	import Vue from  'vue';
+	import LoginForm from  './LoginForm.vue';
+	// 'LoginForm.vue'가 최소그룹단위
+	describe('LoginForm.vue', () => {
+		test('컴포넌트가 마운팅되면 username이 존재하고 초기 값으로 설정되어 있어야 한다.', () => {
+		const instance = new Vue(LoginForm).$mount();
+
+		console.log(instance.username);	
+		expect(instance.username).toBe('');
+		});
+	});
+	```
+- 뷰 테스트 유틸 라이브러리 소개 및 적용
+	- new Vue를 이용해서 생성한 인스턴스에 어떤 값들에 접근한다거나 돔을 조작하게되면 추가적인 코드가 늘어나게되는데 **라이브러리**를 이용하면 쉽게 활용해서 접근할 수가 있다.
+	- [Vue Test Utils](https://vue-test-utils.vuejs.org/guides/)
+	- ```import { shallowMount } from  '@vue/test-utils'```
+		- vue 프로젝트 처음 설치시 설치했던  test-utils를 import 해준다.
+		- ```shallowMount```는  특정 컴포넌트를 마운팅 할 수 있는 API를 가져옴
+	```javascript
+	import { shallowMount } from  '@vue/test-utils';
+	import LoginForm from  './LoginForm.vue';
 	
+	describe('LoginForm.vue', () => {
+			test('컴포넌트가 마운팅되면 username이 존재하고 초기 값으로 설정되어 있어야 한다.', () => {
+			//const instance = new Vue(LoginForm).$mount();
+			const wrapper = shallowMount(LoginForm);
+		
+			expect(wrapper.vm.username).toBe('');
+		});
+	});
+	```
+	- ```vm = instanse```
+	- ```shallowMount```를 하게 되면 ```wrapper```라는게 떨어짐
+	- 코드가 훨씬 간단해짐
+
+- find()를 이용한 컴포넌트 HTML 요소 검색
+	- **find()**
+		- vue-test-util에서 제공
+		- **LoginForm 컴포넌트가 화면에 부착이 되었을때 template 안에있는 특정 html요소(태그)를 쫓아갈 수 있는 API**
+		- username이라는 id를 가진 input 태그 출력
+		```javascript
+		const wrapper = shallowMount(LoginForm);
+		//username이라는 id를 가진 input
+		const idInput = wrapper.find('#username');
+		console.log(idInput.html());
+		```
+		- 결과값
+		
+			<img src="../img/findIdinput.PNG">
+
+
+- 로그인 폼의 인풋 박스 관련 테스트 코드 작성
+	- shallowMount 속성을 이용해서 LoginForm input에 있는 v-model로 연결
+	```javascript
+	test('ID는 이메일 형식이어야 한다.', () => {
+		const wrapper = shallowMount(LoginForm, {
+			data() {
+				return {
+					username: 'test',
+				};
+			},
+		});
+		const idInput = wrapper.find('#username');
+		//기본적인 html 속성을 가져와서 값을 확인한다.
+		console.log(idInput.element.value);
+	});
+	```
+	-결과
+	
+		<img src="../img/loginformInputTest.PNG">
+	
+	
+
+- 이메일 유효성 검사 기능 동작 테스트 코드로 확인
+	- 이메일의 유효성 검사를 확인하기 위해 vm의 computed로 접근한다.
+	
+		```javascript
+		console.log('input 박스의 값', idInput.element.value);
+		console.log(wrapper.vm.isUsernameValid);
+		```
+	- username = test를 LoginForm에 있는 isUsernameValid로 검사했을때 false가 나오는 것을 확인
+	
+		<img src="../img/usernameValidTest.PNG">
+	- ```username: 'test@abc.com'``` username을 이메일 형식으로 바꿨을때 true가 나오는 것을 확인
+
+		<img src="../img/usernameValidTrue.PNG">
+	- **이렇게 실제 브라우저를 가지 않고서도 특정 값을 주입해서 원하는 기능들이 동작하는지 확인하는게 테스트코드**
+	- 위에 실습은 사용성이 높은 실제 user의 관점에서 만들어진 테스트코드는 아니고 테스트가 어떻게 돌아가는지 감을 잡기위해서 작성한 코드이다.
+-  로그인 컴포넌트 첫 번째 테스트 코드 작성(사용자관점)
+	- find api는 css 선택자로 html태그를 불러오는게 가능함
+	- **warningText.exists()**
+		- vue-test-utils에서 제공하는 api
+		- warningText가 존재하는지 검사
+		- 있으면 true 반환, 없으면 false
+	- ```expect(warningText.exists()).toBeTruthy();```
+		**warningText가 있다라고 가정하고 그 값이 true일 것이다**
+
+	```javascript
+	//사용자관점의 테스트를 작성
+	describe('LoginForm.vue', () => {
+		test('ID가 이메일 형식이 아니면 경고 메세지가 출력된다.', () => {
+			const wrapper = shallowMount(LoginForm, {
+				data() {
+					return {
+						username: 'test',
+					};
+				},
+			});
+			
+			const warningText = wrapper.find('.warning');	
+			expect(warningText.exists()).toBeTruthy();
+		});
+	});
+	```
+	- 결과값
+	
+		<img src="../img/userTesting.PNG">
+	
+	- 사용자관점에서의 키보드 입력, 버튼클릭 이벤트에 의해서 결과적으로 어떻게 처리 되어야하는지 동작을 검증하는 코드가 들어가야한다.
+
+- 로그인 컴포넌트 두 번째 테스트 코드 작성
+	- toBeThruthy() - 앞에 있는 값이 true인지 아닌지 확인하는 api
+	```javascript
+	test('ID와 PW가 입력되지 않으면 로그인 버튼이 비활성화 된다.', () => {
+		const wrapper = shallowMount(LoginForm, {
+				data() {
+					return {
+						username: '',
+						passward: '',
+					};
+				},
+		});
+		//초기값만 있는 경우 : disabled가 true
+		const button = wrapper.find('button');
+		expect(button.element.disabled).toBeTruthy();
+	});
+	```
+	- username pw에 값이 없으니 초기에 disabled가 true가 된다.
+	- 테스트 통과하는 것을 확인
+	
+		<img src="../img/testSuccess.PNG">
+		
+	-  테스트를 정확하게 하기 위해서 반대로 올바른 데이터 입력값을 넣게되면 로그인 버튼이 활성화 되기 때문에 false값이 나온다. ( 버튼이 비활성화가 되지 않는다는 결과)
+	
+		<img src="../img/testFail.PNG">
+
+
+
