@@ -16,7 +16,7 @@
 
 #### 커밋을 원격저장소에 푸시하기
 
-<img src="../img/firstCommitSt.PNG">
+<img src="../../img/firstCommitSt.PNG">
  
 - **[master]는 로컬저장소 버전**
 - **[origin/master]는 원격저장소 버전**
@@ -33,7 +33,7 @@
 	- 따라서 위의 그래프를 다시 해석해보면 로컬저장소의 버전과 원격저장소 버전의상태가 다르다는 것
 	- push 아이콘 -> master 체크 이 명령은 현재 줄기인 master의 모든 새로운 커밋을 원격저장소에 올리겠다는것
 	
-	- <img src="../img/originMaster.PNG">
+	- <img src="../../img/originMaster.PNG">
 	
 		로컬저장소의 [master]와 원격저장소의 [origin/master] 모두 최신 커밋을 가리키고 있는 것을 확인.
 ### 3. 그림으로 Git 뜯어보기
@@ -88,28 +88,28 @@
 		4. [feature/기능이름] 브랜치에서 기능 개발 끝나면 [master] 브랜치에 이를 합친다.
 		```
 		- **각자 작업할 'feature/기능이름' 의 브랜치를 만들고, 작업이 완료되면 이를 [master] 브랜치에 각자 합치려는 계획**
-	- 브랜치 생성 과정
-			1.	소스트리에서 브랜치 생성
-				- 체크아웃은 브랜치를 이동하는 명령어  그래서 [ 새 브랜치 체크아웃] 체크박스를 선택하면 브랜치를 만듦과 동시에 그 브랜치로 이동하게 된다. ( 체크를 해제하면 브랜치는 만들어졌지만  [HEAD]는 여전히 [master] 브랜치를 가리킨다.
-			2.  브랜치가 생성되고 '티셔츠, 기능리스트 추가' 커밋을 가리키는 것을 확인
-      
-				<img src="../img/detail-page-branch.PNG">
-        
-				- (좌측에서 확인)브랜치 이름에 '/' 를 넣으면 앞에 적은 텍스트 'feature'가 마치 폴더처럼 구분되어 보여짐 (소스트리의 편의 기능)
-			3.  디테일 페이지 파일을 추가하고 커밋 시도
-      
-				<img src="../img/branchfirstCommit.PNG">
-        
-			4. feature-list.md파일 마지막 라인에 텍스트 추가 ( 다른 사람과 협업시 똑같은 코드를 고치는 상황에 예시가 되니 기억할것!)
-			5. 소스트리에서 커밋하고 커밋메세지 아래 [-에 바뀐 내용 즉시 푸시] 체크하고 커밋 
+- 브랜치 생성 과정
+		1.	소스트리에서 브랜치 생성
+			- 체크아웃은 브랜치를 이동하는 명령어  그래서 [ 새 브랜치 체크아웃] 체크박스를 선택하면 브랜치를 만듦과 동시에 그 브랜치로 이동하게 된다. ( 체크를 해제하면 브랜치는 만들어졌지만  [HEAD]는 여전히 [master] 브랜치를 가리킨다.
+		2.  브랜치가 생성되고 '티셔츠, 기능리스트 추가' 커밋을 가리키는 것을 확인
+		
+		<img src="../../img/detail-page-branch.PNG">
+		
+			- (좌측에서 확인)브랜치 이름에 '/' 를 넣으면 앞에 적은 텍스트 'feature'가 마치 폴더처럼 구분되어 보여짐 (소스트리의 편의 기능)
+		4.  디테일 페이지 파일을 추가하고 커밋 시도
+		
+			<img src="../../img/branchfirstCommit.PNG">
+			
+		5. feature-list.md파일 마지막 라인에 텍스트 추가 ( 다른 사람과 협업시 똑같은 코드를 고치는 상황에 예시가 되니 기억할것!)
+		6. 소스트리에서 커밋하고 커밋메세지 아래 [-에 바뀐 내용 즉시 푸시] 체크하고 커밋 
 			- 현재 브랜치인 [feature/detail-page]에 푸시까지 한번에 가능
-			6. 내용을 추가하고 커밋이 생성
-      
-				<img src="../img/branchCommit1.PNG">
-        
-				- [origin/feature/detail-page] 브랜치 꼬리표도 붙음 
-				- [origin/]이 붙을 것으로 봐서 원격저장소에 올라간 것을 확인
-			7. GitHub원격저장소 [Branch:master] 드롭다운 버튼을 클릭하고 브랜치 올라온 것을 확인.
+		7. 내용을 추가하고 커밋이 생성
+		
+		<img src="../../img/branchCommit1.PNG">
+		
+			- [origin/feature/detail-page] 브랜치 꼬리표도 붙음 
+			- [origin/]이 붙을 것으로 봐서 원격저장소에 올라간 것을 확인
+		8. GitHub원격저장소 [Branch:master] 드롭다운 버튼을 클릭하고 브랜치 올라온 것을 확인.
 #### 브랜치 이동하기 : 체크아웃(chekout)
 - 장바구니 기능 만들기 (문어개발자ver)
 - **[master]브랜치로 돌아가서 새로운 브랜치 생성**
@@ -130,7 +130,7 @@
 		8.  히스토리 그래프 확인
 			- [master] 브랜치 ('티셔츠,기능 리스트 추가') 커밋을 베이스로 detail-page브랜치커밋, cart브랜치커밋 두가지가 뻗어 나옴
       
-				<img src="../img/historyGraph.PNG">
+				<img src="../../img/historyGraph.PNG">
         
 		- 개발이 완료되면 [master]브랜치에 내 브랜치 작업물을 합치면 되는 것
 			- [master]브랜치를 기준으로 만든 브랜치니 [master]브랜치를 큰 줄기로 잡고 잔가지에서 조금씩 수정해서 다시 큰 줄기에 합치는 것.
@@ -162,11 +162,11 @@
 		- fast-forword가 가능해도 새 커밋으로 생성 체크박스를 선택하면 명시적으로 병합커밋을 만듦 지금은 체크x
 	4.  두 브랜치가 합쳐짐
 		
-	 <img src="../img/fastforward1.PNG">
+	 <img src="../../img/fastforward1.PNG">
 		
 	5. push 해줌 origin/master모드 커밋을 가리킴
 		
-		<img src="../img/fastforward2.PNG">
+		<img src="../../img/fastforward2.PNG">
 
 ### 4. 충돌 해결하기
 #### 브랜치 합치기 실습 : 병합 커밋 및 충돌 해결
@@ -297,7 +297,7 @@ fork
 		- 이파일에는 컨트리뷰터가 풀 리퀘스트를 보낼때 미리 확인하면 좋은 것 등이 기재되어 있음
 6. 성공
 
-	<img src="../img/pullrequestSeccess.PNG">
+	<img src="../../img/pullrequestSeccess.PNG">
 
 
 7.  원작자의( 고양이,문어) 승인과 병합 차례(아래참고)
@@ -318,15 +318,15 @@ fork
 	- **이것은 원본저장소 주인만 할 수 있음 너구리는 할 수 없음!**
 5. 완료되면 아래 커밋메세지가 뜸
 
-	<img src="../img/pullrequestmerge.PNG">
+	<img src="../../img/pullrequestmerge.PNG">
 	
 6. 원본저장소에 너구리 코드 병합 확인!
 
-	<img src="../img/pullrequestmerge2.PNG">
+	<img src="../../img/pullrequestmerge2.PNG">
 	
 7. [Insights] -> **[Contributors]에 가보면 너구리도 원본저장소의 컨트리뷰터에 포함된 것을 확인!!**
 
-	<img src="../img/contributorsScs.PNG">
+	<img src="../../img/contributorsScs.PNG">
 
 8. 너구리 계정에서 오픈소스를 자랑하기
 	- 로그아웃, 너구리계정 로그인
@@ -361,7 +361,7 @@ fork
 9. 너구리 원격저장소에서 원본저장소에 풀 리퀘스트 요청
 	-  코드가 충돌이 났다는 메세지가 뜸
 	
-		<img src="../img/풀리퀘스트충돌.PNG">
+		<img src="../../img/풀리퀘스트충돌.PNG">
 	
 	- **너구리 저장소에서 [New pull request] 버튼을 눌렀는데 왜 상단엔 고양이 저장소가 보일까?**
 		- 포크한 저장소 (너구리) 에서 [New pull request]버튼을 클릭하여 원본저장소(고양이)로 풀 리퀘스트를 보내는 것이 성공하면 원본저장소(고양이)로 페이지가 자동으로 이동한다. 풀 리퀘스트는 모두 원본저장소에 쌓이기 때문에 자연스러운 페이지 이동이라고 생각하면 된다.
@@ -384,7 +384,7 @@ fork
 5. 원격이름 upstream  (원본저장소를 지칭하는 관용적 닉네임), URL/경로에는 원본저장소 주소 
 6. 왼쪽 사이드바의 [원격] 섹션에 [origin]말고도 [upstream] 추가, but 아무 변화 x
 
-	<img src ="../img/원격upstream.PNG">
+	<img src ="../../img/원격upstream.PNG">
 
 7. [upstream에서 가져오기] 메뉴 선택
 	- **[upstream]원본저장소에 있는 히스토리를 받아오는 것 이것을 패치라고 함**
