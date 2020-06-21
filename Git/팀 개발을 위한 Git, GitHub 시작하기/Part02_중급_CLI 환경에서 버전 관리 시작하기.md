@@ -58,7 +58,7 @@
 	$ git status
 	```
 	- ```$ git status``` 는 **Git 저장소의 상태를 알려주는 명령어**
-	- 하지만  입력하면 에러 메세지 발생 ```fatal: not a git repository (or any of the parent directories): .git``` '.git 폴더가 없다(=현재 디렌토리는 Git 저장소가 아니다'라고 알려줌
+	- 하지만  입력하면 에러 메세지 발생 ```fatal: not a git repository (or any of the parent directories): .git``` '.git 폴더가 없다(=현재 디렉토리는 Git 저장소가 아니다'라고 알려줌)
 	- 즉, Git status 명령은 Git 저장소(정확하게는 워킹트리)에서만 정상적으로 수행되는 명령
 	```bash
 	$ git status
