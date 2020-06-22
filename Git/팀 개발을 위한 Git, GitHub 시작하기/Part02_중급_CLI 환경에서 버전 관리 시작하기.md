@@ -421,3 +421,584 @@ hello git
 second
 ```
 - *pull = fetch + merge*
+
+## chapter 7 브랜치 생성 및 조작하기
+### 1. CLI로 브랜치 생성하기
+#### 브랜치 되돌아 보기
+```
+1. 커밋하면 커밋 객체가 생긴다. 
+커밋 객체에는 부모커밋에 대한 참조와 실제 커밋을 구성하는 파일 객체가 들어있다.
+2. 브랜치는 논리적으로 어떤 커밋과 그 조상들을 묶어서 뜻하지만, 사실은 단순히 커밋 객체 하나를 가리킬 뿐이다. 
+앞의 그림에서 [master] 브랜치는 정확하게 C3 커밋 객체를, [feature1] 브랜치는 C5 커밋 객체 하나만을 가리킨다.
+```
+- 브랜치는 언제 사용하는게 좋을까
+	- 새로운 기능 추가
+	- 버그 수정
+	- 병합과 리베이스 테스트
+	- 이전 코드 개선
+	- 특정 커밋으로 돌아가고 싶을 때
+
+#### 브랜치 생성하기
+```bash
+$ git branch [-v]
+- 로컬 저장소의 브랜치 목록을 보는 명령
+- [-v]옵션을 사용하면 마지막 커밋도 함께 표시된다.
+- 표시된 브랜치 중에서 이름 왼쪽에 *가 붙어 있으면 HEAD 브랜치
+
+$ git branch [-f] <브랜치 이름> [커밋체크섬]
+- 새로운 브랜치를 생성한다
+- 커밋체크섬 값을 주지 않으면 HEAD로부터 브랜치를 생성한다.
+- 이미 있는 브랜치를 다른 커밋으로 옮기고 싶을 때는 -f 옵션을 줘야한다.
+
+$ git branch -r [-v]
+- 원격 저장소에 있는 브랜치를 보고 싶을 때 사용
+- 마찬가지로 [-v] 옵션을 추가하여 커밋 요약도 볼 수 있다.
+
+$ git checkout <브랜치이름> 
+- 특정 브랜치로 체크아웃할때 사용
+- 브랜치 이름 대신 커밋 체크섬을 쓸 수 있다.
+- 하지만 브랜치 이름을 쓰는 방법을 권장
+
+$ git checkout -b <브랜치이름> <커밋 체크섬>
+- 특정 커밋에서 브랜치를 새로 생성하고 동시에 체크아웃까지 가능하게 한다.
+- 두 명령을 하나로 합친 명령이기 때문에 간결해서 자주 사용
+
+$ git merge <대상 브랜치>
+- 현재 브랜치와 대상 브랜치를 병합할때 사용
+- 병합 커밋(merge commit)이 새로 생기는 경우가 많음
+
+$ git rebase <대상 브랜치>
+- 내 브랜치의 커밋들을 대상 브랜치에 재배치 시킨다.
+- 히스토리가 깔끔해져서 자주 사용하지만 조심해야 함
+
+$ git branch -d <브랜치이름>
+- 특정 브랜치를 삭제
+- HEAD 브랜치나 병합이 되지 않은 브랜치는 삭제할 수 없음
+
+$ git branch -D <브랜치이름>
+- 브랜치를 강제로 삭제하는 명령
+- -d로 삭제할 수 없는 브랜치를 지우고 싶을때 사용. 역시 조심해야 함
+```
+
+- 실습 내용 - 새로운 브랜치를 만들고 두번 커밋한 후 다시 마스터 브랜치로 병합
+- **브랜치 만들기**
+```bash
+(master) $ git log --online # 1. 커밋 로그 보기
+79df8ca (HEAD -> master, origin/master) 두 번째 커밋
+a69defb 첫 번째 커밋
+
+(master) $ git branch # 2. 현재 브랜치 확인
+* master
+
+(master) $ git branch mybranch1 # 3. 새로운 브랜치 생성
+
+(master) $ git branch $  # 4. 현재 브랜치 확인
+* master
+mybranch1
+
+(master) $ git log --oneline --all # 5. 변경된 브랜치 확인
+79df8ca (HEAD -> master, origin/master, mybranch1) 두 번째 커밋
+a69defb 첫 번째 커밋
+```
+- 브랜치 만들기 순서 해석
+	1. git log 명령으로 현재 커밋, 브랜치 상태 확인. [origin]으로 시작하는 브랜치는 원격브랜치 -> 현재 로컬에는 [master] 브랜치만 존재하는 것을 알 수있음. HEAD 가 [master]브랜치를 가리키는 것도 확인
+	2. *master 문구는 *HEAD -> master*와 동일. 프롬프트에 보이는 (master) 역시 HEAD가 [master] 브랜치라는 것을 알려줌
+	3. 새로운 브랜치 생성
+	4. (+5) git branch와 log명령으로 결과 확인. *가장 최신 커밋에 HEAD, master, mybranch* 모두 위치. 아직 체크아웃 전이기 때문에 HEAD는 여전히 [master]브랜치를 가리킴
+
+- **HEAD에 대해 반드시 기억할 점**
+```
+1. HEAD는 현재 작업 중인 브랜치를 가리킴
+2. 브랜치는 커밋을 가리키므로 HEAD 커밋을 가리킴
+3. 결국 HEAD는 현재 작업 중인 브랜치의 최신 커밋을 가리킴
+```
+### 2. CLI로 checkout 하기
+- checkout 명령은 브랜치의 내용을 워킹트리에 반영할때 사용 
+- 정확하게는 브랜치가 가르키고 있는 커밋의 내용을 워킹트리에 반영
+#### CLI를 이용한 브랜치 체크아웃 및 새 커밋 생성
+- **브랜치 만들기**
+```bash
+# HEAD가 현재 작업 중인 브랜치의 최근 커밋을 가리킨다는 점을 기억할 것!
+(master) $ git checkout mybranch1 # 1. 브랜치 체크아웃
+
+(mybranch1) $ git branch # 2. 현재 브랜치 확인
+master
+* mybranch1
+
+(mybranch1) $ git log --oneline --all # 3. HEAD 변경 확인
+79df8ca (HEAD -> mybranch1, origin/master, master) 두 번째 커밋
+a69defb 첫 번째 커밋
+
+(mybranch1) $ cat file1.txt # 파일 내용 확인
+
+(mybranch1) $ echo "third -my branch" >> file1.txt # 파일에 내용 추가
+
+(mybranch1) $ cat file1.txt # 변경 내용 확인
+
+(mybranch1) $ git status # 스테이지 상태 확인
+
+(mybranch1) $ git add file1.txt # 스테이지에 변경사항 추가
+
+(mybranch1) $ git commit # 4. 커밋
+
+(mybranch1) $ git log --oneline --all # 5. 변경된 브랜치 확인
+```
+- 커밋 히스토리 확인
+
+<img src="../../img/myNewBranch.PNG">
+
+- 브랜치 만들기 실행 과정
+	1. 보통 체크아웃 하면 브랜치 변경과 동시에 작업 폴더 내용도 함께 변경됨 but 이번에는 mybranch1 커밋이 이전 브랜치였던 **[master]의 커밋과 같은 커밋이기 때문에** 작업 폴더의 내용은 변경되지 않음
+	2. 현재 브랜치 확인. 프롬프토도 mybranch1으로 변경됨
+	3. git log 명령으로 *HEAD* 가 [*mybranch1*]으로 변경된 것 확인
+
+- ```$ git checkout <커밋체크섬>```을 하면 어떤 일이 벌어질까?
+	- HEAD와 브랜치가 분리되는 **Detached HEAD** 상황이 됨
+	- 이상황에서 커밋 생성할 수 있지만, *다른 브랜치로 체크아웃하는 순간* Detached HEAD의 *커밋들은 다 사라져서 안보이게됨*
+	- 사실 로컬저장소에는 커밋이 남아있어서 ```$ git reflog```로 복구할 수 있지만 *권장하지 않음*
+
+- **새로운 커밋을 생성하면**
+```
+1. 새로 커밋을 생성하면 그 커밋의 부모는 언제나 이전 HEAD 커밋이다.
+2. 커밋이 생성되면 HEAD는 새로운 커밋으로 갱신된다.
+3. HEAD가 가리키는 브랜치도 HEAD와 함께 새로운 커밋을 가리킨다.
+```
+#### CLI를 이용한 빨리 감기 병합
+- **커밋 후 빨리 감기 병합**
+```bash
+(mybranch1) $ echo "fourth - my branch" >> file1.txt # 파일에 내용 추가
+(mybranch1) $ cat file1.txt # 파일 내용 확인
+
+(mybranch1) $ git status # 스테이지 상태 확인
+
+(mybranch1) $ git add file1.txt # 스테이지에 추가
+(mybranch1) $ git commit # 1. 신규 커밋 추가
+
+(mybranch1) $ git log --oneline --all --graph # 2. 커밋 로그 보기
+* d654162 (HEAD -> master, mybranch1) mybranch1 두 번째 커밋
+* 7b3e5e4 mybranch1의 첫 번째 커밋
+* 79df8ca (origin/master) 두 번째 커밋
+* a69defb 첫 번째 커밋
+
+(mybranch1) $ git checkout master # 3. 마스터 브랜치 체크아웃
+
+(master) $ cat file1.txt # 4. 파일이 이전으로 돌아갔는지 확인
+hello git
+second
+
+(master) $ git merge mybranch1 # 5. 병합, Fast-forward
+
+(master) $ git log --oneline --all --graph # 로그 확인
+* d654162 (HEAD -> master, mybranch1) mybranch1 두 번째 커밋
+* 7b3e5e4 mybranch1의 첫 번째 커밋
+* 79df8ca (origin/master) 두 번째 커밋
+* a69defb 첫 번째 커밋
+
+(master) $ cat file1.txt # 파일 상태 재확인
+hello git
+second
+third - my branch
+fourth - my branch
+```
+- 빨리감기 병합 과정
+	1.  새로운 커밋 생성
+	2. *기존 커밋을 부모로 하는* 새로운 커밋이 생성됨.  HEAD는 mybranch1, mybranch1은 새커밋을 각각 가리킴
+	3. master브랜치로 체크아웃
+	4. cat 명령을 확인해보면 텍스트 파일이 이전의 내용임
+	5. [master] 브랜치에서 [mybranch1] 브랜치를 병합
+- **작업의 흐름이 하나였기 때문에 빨리 감기 병합(fast-forward)으로 완료**
+
+#### reset --hard로 브랜치 되돌리기
+- reset은 현재 브랜치를 특정 커밋으로 되돌릴때 사용
+- **hard reset**
+	- ```$ git reset --hard```  현재 브랜치를 지정한 커밋으로 옮긴다. 작업 폴더의 내용도 함께 변경됨
+	- *커밋 체크섬*을 알아야함
+- 커밋 체크섬 : git log로 확인할 수 있지만 번거로움. 보통 **HEAD~ 또는 HEAD^로** 시작하는 약칭 사용
+- **HEAD~ 또는 HEAD^** 
+	- ```HEAD~<숫자>``` HEAD~은 헤드의 부모 커밋, HEAD~2 는 헤드의 할아버지 커밋을 말한다. HEAD~n은 n번째 위쪽 조상이라는 뜻
+	- ```HEAD^<숫자>```  HEAD^은 똑같이 부모 커밋. 반면 HEAD^2는 두 번째 부모를 의미. 병합 커밋처럼 부모가 둘 이상인 커밋에서만 의미가 있다.
+- **현재 브랜치를 두단계 이전으로 되돌리기**
+```bash
+$ git reset --hard HEAD~2 # 1. 브랜치 되돌리기
+HEAD is now at 79df8ca 두 번째 커밋
+
+$ git log --oneline --all # 2. 로그 확인
+d654162 (mybranch1) mybranch1 두 번째 커밋
+7b3e5e4 mybranch1의 첫 번째 커밋
+79df8ca (HEAD -> master, origin/master) 두 번째 커밋
+a69defb 첫 번째 커밋
+```
+- log 명령을 확인하면 **HEAD -> master가 달라진 것**을 알 수 있음
+- **```reset --hard``` 와 ```checkout```**
+	- 만약 ```$ git checkout HEAD~2```라고 입력했다면?
+		- **[master]브랜치는 그자리에 있고 HEAD만 옮겨짐** ( = 소스트리에서 특정 커밋을 더블 클릭해서 체크아웃 한 것과 같은 상황 = detached HEAD)
+		- *다시 [master]브랜치와 HEAD를 연결하려면?*
+		```bash
+		$ git checkout HEAD~2
+		$ git brach -f master
+		$ git checkout master
+		```
+		- **결국 ```reset --hard``` 명령을 위 세 명령을 한 번에 수행하는 명령**
+
+#### 빨리 감기 병합 상황에서 rebase 해보기
+- ```$ git rebase <대상 브랜치>``` 현재 브랜치에만 있는 새로운 커밋을 *대상 브랜치 위로 재배치* 시킴
+- *현재 브랜치에서 재배치 할 커밋이 없는 경우?* rebase는 아무런 동작 x
+- 빨리 감기 병합이 가능한 경우 rebase를 한다면 *빨리 감기 병합*을 함 
+- **rebase, push, branch 제거**
+```bash
+$ git checkout mybranch1 # 1. 브랜치 변경
+
+$ git rebase master # 2. rebase 시도
+-> [mybranch1] 브랜치는 이미 [master] 브랜치 위에 있기 때문에 재배치 할 커밋이 없음
+rebase master를 수행해도 아무 일이 일어나지 않음
+
+$ git log --oneline --all # 로그 확인, 변한 게 없다.
+d654162 (HEAD -> mybranch1) mybranch1 두 번째 커밋
+7b3e5e4 mybranch1의 첫 번째 커밋
+79df8ca (origin/master, master) 두 번째 커밋
+a69defb 첫 번째 커밋
+
+$ git checkout master # 3. 다시 master 브랜치 체크아웃
+
+$ git rebase mybranch1 # 4. 반대 방향에서 rebase
+-> rebase 명령으로 [master] 브랜치를 [mybranch1]으로 재배치 시도
+빨리감기가 가능한 상황이라 rebase는 merge 명령과 마찬가지로 빨리감기를 하고 작업 종료
+
+
+$ git log --oneline --all # 변경사항을 확인해보면 빨리 감기 병합이 됨
+d654162 (HEAD -> master, mybranch1) mybranch1 두 번째 커밋
+7b3e5e4 mybranch1의 첫 번째 커밋
+79df8ca (origin/master) 두 번째 커밋
+a69defb 첫 번째 커밋
+
+$ git push # 5. push
+
+$ git branch -d mybranch1 # 6. 브랜치 삭제
+
+$ git log --oneline --all -n2  # 로그 확인
+d654162 (HEAD -> master, origin/master) mybranch1 두 번째 커밋
+7b3e5e4 mybranch1의 첫 번째 커밋
+```
+
+#### 배포 버전에 태깅하기
+- 주석이 있는 태그를 권장
+- ``` $ git tag -a -m <간단한 메세지> <태그이름> [브랜치 또는 체크섬]```
+	- a 로 주석 있는 (annotated) 태그를 생성. *메세지와 태그 이름은 필수*이며 브랜치이름을 생략하면 HEAD에 태그를 생성합니다.
+- ``` $ git push <원격저장소 별명> <태그이름>```
+	- *원격저장소*에 태그를 업로드
+- **tag 작성**
+```bash
+$ git log --oneline # 로그 확인
+d654162 (HEAD -> master, origin/master) mybranch1 두 번째 커밋
+...
+$ git tag -a -m "첫 번째 태그 생성" v0.1 # 주석 있는 태그 작성
+
+$ git log --oneline # 태그 생성 확인
+d654162 (HEAD -> master, tag: v0.1, origin/master) mybranch1 두 번째 커밋
+...
+
+$ git push origin v0.1 # 태그 푸시
+```
+### 3. CLI로 3-way 병합하기
+- 버그 발생 시 수정 단계
+	```
+	1. (옵션) 오류가 없는 버전 (주로 Tag가 있는 커밋)으로 롤백
+	2. [master] 브랜치로부터 [hotfix] 브랜치 생성
+	3. 빠르게 소스 코드 수정 / 테스트 완료
+	4. [master] 브랜치로 병합 (Fast - forward) 및 배포
+	5. 개발 중인 브랜치에도 병합(충돌 발생 가능성이 높음)
+	```
+	- 버그가 발생한 상황에서는 원래 작업 중이던 브랜치도 [master] 브랜치로 시작했기 때문에 같은 버그를 가지고 있을 것
+	- 때문에 [hotfix] 브랜치의 내용은 [master]브랜치와 개발 브랜치 모두에 병합되어야 함
+- **새로운 브랜치 및 커밋 생성**
+``` bash
+$ git checkout master # master로 체크아웃
+
+(master) $ git checkout -b feature1 # feature1 브랜치 생성 및 체크아웃
+
+(feature1) $ echo "기능 1 추가" >> file1.txt # 파일 내용 수정
+
+...커밋하고 스테이징...
+
+$ git log --oneline --graph --all -n2 # 로그 확인
+* 5b279d1 (HEAD -> feature1) 새로운 기능 1 추가
+* d654162 (tag: v0.1, origin/master, master) mybranch1 두 번째 커밋
+```
+- 커밋 한 직후에 장애가 발생했다고 가정
+- **hotfix 브랜치 생성, 커밋, master에 병합**
+```bash
+$ git checkout -b hotfix master # master로부터 hotfix 브랜치 생성, 체크아웃
+
+$ git log --oneline --all -n2 # 2개의 커밋 로그만 보기
+5b279d1 (feature1) 새로운 기능 1 추가
+d654162 (HEAD -> hotfix, tag: v0.1, origin/master, master) mybranch1 두 번째 커
+밋
+
+$ echo "some hot fix" >> file1.txt
+
+... 스테이지에 올리고 커밋하기..
+
+$ git log --oneline -n1
+c396ff6 (HEAD -> hotfix) hotfix 실습
+
+$ git checkout master
+$ git merge hotfix # 빨리 감기 병합
+$ git push # 원격저장소로 push
+```	
+- hotfix의 커밋은 버그 수정이었기 때문에 이 내용을 현재 개발중인 *[feature1] 브랜치에도 반영*해야 함
+- but 소스트리에서 보면 [feature1]브랜치와 [master] 브랜치는 *다른 분기로 진행*되고 있음
+
+<img src="../../img/3waymerge.PNG">
+
+- 이 경우에는 *빨리 감기 병합이 불가능*하므로 **3-way 병합**을 해야함
+- **병합 및 충돌 해결하기 1**
+```bash
+$ git checkout feature1 # feature1 브랜치 체크아웃
+
+$ git log --oneline --all # 로그 확인
+c396ff6 (origin/master, master, hotfix) hotfix 실습
+5b279d1 (HEAD -> feature1) 새로운 기능 1 추가
+
+$ git merge master # 1. master 브랜치와 병합 시도
+Auto-merging file1.txt
+CONFLICT (content): Merge conflict in file1.txt
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git status # 2. 실패 원인 파악하기
+On branch feature1
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+        both modified:   file1.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+-> git satus 명령을 실행해 충돌 대상 파일을 확인 할 수 있음
+결과메세지에서 볼 수 있는 것처럼 git merge --abort로 취소할 수도 있음
+```
+- [master] 브랜치와 병합 시도시 발생하는 에러 메세지
+
+<img src="../../img/mergeConflict.PNG">
+
+- 비쥬얼 스튜디오로 충돌이 발생한 부분 파일 수정
+- **병합 및 충돌 해결하기2**
+``` bash
+$ cat file1.txt # 최종 변경 내용 확인
+hello git
+second
+third - my branch
+fourth - my branch
+기능 1추가
+some hot fix
+
+$ git add file1.txt # 1. 스테이징
+
+$ git status
+All conflicts fixed but you are still merging.
+-> git add 및 git status 를 수행하면 충돌한 파일의 수정을 완료한 후에 git commit 명령을 수행하면 된다는 것을 알 수 있음
+
+$ git commit # 2. 머지 커밋 생성
+[feature1 aae691f] Merge branch 'master' into feature1
+
+$ git log --oneline --all --graph -n4 # 로그 확인
+```
+- 병합이 성공적으로 완료. 브랜치 모양 확인
+
+	<img src="../../img/3waymergeSuccess.PNG">
+
+
+### 4. CLI로 rebase 해 보기
+#### rebase 사용하기
+- 3-way 병합을 하면 *병합 커밋이 생성되어 트리가 다소 지저분해진다*는 단점
+- 이럴 때 트리를 깔끔하게 하기 위해 rebase 사용
+- rebase는 말그대로 **내 브랜치의 커밋들을 재배치하는 것**
+- **rebase의 원리**
+	```
+	1. HEAD와 대상 브랜치의 공통 조상을 찾는다. (아래 그림의 C2)
+	2. 공통 조상 이후에 생성한 커밋들을(C4, C5 커밋) 대상 브랜치 뒤로 재배치한다.
+	```
+- **재배치된 커밋은 원래의 커밋과 다른 커밋이 됨**
+	- rebase 전과 후 *커밋 체크섬이 달라짐
+- rebase 명령은 *로컬 브랜치를 깔끔하게 정리*하고 싶을때 사용
+- 원격에 푸시한 브랜치를 rebase할 때 조심
+	- Git 가이드에서는 **원격 저장소에 존재하는 브랜치에 대해서는 rebase를 하지 말 것을 권장**
+- **reset --hard 및 rebase 시도**
+```bash
+$ git checkout feature1 # 1. feature1으로 전환
+
+$ git reset --hard HEAD~ # 2. 현재 브랜치를 한 단계 되돌린다. 
+-> 병합 커밋이 사라짐
+
+$ git log --oneline --graph --all -n3 # 3. 로그 확인
+* c396ff6 (origin/master, master, hotfix) hotfix 실습
+| * 5b279d1 (HEAD -> feature1) 새로운 기능 1 추가
+|/
+* d654162 (tag: v0.1) mybranch1 두 번째 커밋
+
+ $ git rebase master # 4. HEAD 브랜치의 커밋들을 master로 재배치
+ error: could not apply 5b279d1... 새로운 기능 1 추가
+ -> rebase를 시도하지만  merge에서와 마찬가지로 충돌로 인해 실패
+ 실패메세지를 보면 수동으로 충돌을 해결한 후에 스테이지를 추가할 것을 알려줌
+ 'git rebase --continue'명령을 수행하라는 것도 알려줌
+ 
+$ git push
+```
+- **충돌 해결 및 rebase 이어서 하기**
+```bash
+$ git status # 1. 충돌 대상 확인 및 수동으로 충돌 해결
+-> 충돌 파일 확인 후 비쥬얼 스튜디오를 이용해 수동을 파일 수정
+
+$ git add file1.txt # 2. 변경사항 스테이징 및 상태 확인
+
+$ git status
+
+$ git rebase --continue # 3. 리베이스 계속 진행
+-> merge는 마지막 단계에서 git commit 명령을 하지만, 
+rebase 는 --continue 명령을 사용해야함
+
+$ git log --oneline --graph --all -n2 # 4. 로그 확인
+* 359c76e (HEAD -> feature1) 새로운 기능 1 추가
+* c396ff6 (origin/master, master, hotfix) hotfix 실습
+
+-> 로그 확인시 merge와는 달리 병합 커밋도 없고 히스토리도 한 줄로 깔금함
+또한 [feature1] 브랜치가 가리키는 커밋의 체크섬 값이 바뀜
+리베이스를 하면 커밋 객체가 바뀌기 때문.
+
+$ git checkout master
+
+$ git merge feature1 # 5. 빨리 감기 병합
+-> [master] 브랜치에서 [feature1] 브랜치로 병합
+한 줄이 되었기 때문에 빨리 감기 병합을 수행
+
+```
+- rebase를 하고 깔끔해진 history
+
+	<img src="../../img/rebaseHistory.PNG">
+
+- **rebase 와 마지막 단계 명령어가 다른 이유**
+	- **3-way 병합**은 기존 커밋의 변경 없이 *새로운 병합 커밋을 생성* 한 것. 
+		- *따라서 충돌도 한번만 발생*
+		- 충돌 수정 완료 후 git commit 명령 수행하면 merge 완료
+	- **rebase** 
+		- 대상 커밋이 여러 개일 경우 *여러번 충돌*
+		- 기존의 커밋을 하나씩 *단계별로 수정*하기 때문에 ```$ git rebase --continue``` 명령으로 중단된 rebase를 재시작
+		- *여러 커밋에 발생했다면* 충돌 해결마다  ```$ git rebase --continue``` 매번 입력해줘야해서 복잡해짐 -> **병합을 수행**하는 것이 더 간단함
+
+||3-way 병합|rebase|
+|---|---|---|
+|특징|머지 커밋 생성|현재 커밋들을 수정하면서 대상 브랜치 위로 재배치|
+|장점|한 번만 충돌 발생|깔끔한 히스토리|
+|단점|트리가 약간 지저분해짐|여러 번 충돌이 발생할 수 있음|
+
+### 유용한 rebase의 사용법 : 뻗어나온 가지 없애기
+- 두 대의 PC에서 한 브랜치에 작업을 하는 경우 가지 모양의 커밋이 발생
+	- 한 PC에서 머잇을 생성하고 push 진행, 다른 PC에서는 pull하지 않고 커밋
+	- 결국 이전 커밋을 부모로 한 커밋이 생김
+	- 그 상황에서 뒤늦게 pull을 하면 자동으로 3-way 병합이 됨
+- ```reset --hard ```로 병합 커밋을 되돌리고 rebase 사용해서 해결
+- **보통 커밋 만들기**
+```bash
+$ echo "master1" > master1.txt # master1.txt 파일 생성
+
+$ git add master1.txt # 스테이지에 추가
+
+$ git commit -m "master 커밋 1" # 커밋
+
+$ git push origin master # 푸시
+
+$ git log --online -n1 # 로그 확인
+ca51c5b (HEAD -> master, origin/master) master 커밋 1
+
+$ ls # 작업 디렉토리 상태 확인
+file1.txt	master1.txt
+```
+- **가지 커밋 만들기**
+```bash
+$ git reset --hard HEAD~ # 1. HEAD 를 한 단계 되돌리기
+HEAD is now at 359c76e 새로운 기능 1 추가
+$ echo "master2" > master2.txt # master2.txt 파일 생성
+
+$ git add . # 스테이지에 추가
+
+$ git commit -m "master2 커밋" # 2. 커밋
+
+$ git log --oneline --graph --all -n3 # 3. 로그 확인
+```
+- **master1 커밋과 master2 커밋 모두 ```359c76e ``` 커밋을 부모로하는 커밋이므로 가지가 생긴 것을 알 수 있음**
+
+	<img src="../../img/resetHardLog.PNG">
+
+- **지금 상황에서 ```$ git pull```한다면?**
+	- *git full = git fetch + git merge* 이기 때문에 가지를 병합하기 위해서 병합 커밋이 생기고 그러면 *커밋 히스토리가 지저분*해짐
+```bash
+$ git pull # 1. git pull 수행, 머지 메세지 창은 그냥 닫자.
+-> 자동으로 병합 커밋이 생성
+$ git log --oneline --graph --all -n4 # 2. 병합 커밋 생성 확인
+```
+- 로그 병합 커밋 생성 결과
+
+	<img src="../../img/gitpullResult.PNG">
+
+- **rebase로 가지 없애기**
+```bash
+$ git reset --hard HEAD~ # 1. 병합 커밋 되돌리기
+-> 커밋을 하나 되돌림
+이 경우 마지막 커밋은 병합 커밋이었으므로 병합되기 전 커밋으로 돌아감
+이 커밋이 튀어나온 커밋이니 어딘 가에 재배치를 해야함
+
+$ git rebase origin/master # 2. rebase 수행으로 현재 커밋 재배치
+-> 로컬 [master] 브랜치의 가지 커밋이 [origin/master] 브랜치 위로 재배치 됨
+
+$ git log --oneline --all --graph -n3 # 로그 확인
+
+$ git pysh # 3. push
+```
+- 튀어나온 가지가 사라지고 깔끔해짐
+
+	<img src="../../img/mergeResetRebase.PNG">
+
+#### rebase 주의사항
+- **원격 저장소에 푸시한 브랜치는 rebase하지 않는 것이 원칙**
+- rebase와 git의 동작 원리를 잘 이해하기 전까지 가급적 rebase는 아직 원격에 존재하지 않는 *로컬 브랜치들에만 적용*하기를 권장 
+
+#### 임시 브랜치 사용하기
+ - 임시 브랜치 생성 사용 및 삭제
+ ```bash
+$ git branch test feature1 # feature1 브랜치에서 임시 브랜치 생성
+
+$ git checkout test # test 브랜치 체크아웃
+
+$ echo "임시 브랜치를 생성해서 테스트 중 입니다." > test.txt
+
+$ git add .
+
+$ git commit -m "임시 커밋" # 새로운 커밋 생성
+
+$ git log --oneline --graph --all -n4 # 커밋 로그 보기
+* bce6a7e (HEAD -> test) 임시 커밋
+| * f981644 (origin/master, master) master2 커밋
+| * ca51c5b master 커밋 1
+|/
+* 359c76e (feature1) 새로운 기능 1 추가
+
+$ git checkout master
+
+$ git branch -D test # 임시 브랜치 삭제
+
+$ git log --oneline -- graph --all -n3 # 로그 확인
+* f981644 (HEAD -> master, origin/master) master2 커밋
+* ca51c5b master 커밋 1
+* 359c76e (feature1) 새로운 기능 1 추가
+```
+- 임시 브랜치인 [test] 브랜치를 생성하고 커밋 한 후에 다시 [master] 브랜치로 돌아가 [test] 브랜치를 삭제한 결과
+- *최종적으로 아무 작업도 남지 않음*
+- *commit, merge, rebase*등 다양한 작업을 *미리 테스트해 보고 싶을때* 간단하게 임시 브랜치를 만들어서 사용하고 *불필요해지면 삭제*하는 Git 활용 팁
+
+
+
+	
+
+
